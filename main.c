@@ -79,21 +79,30 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
         SDL_LogError(SDL_LOG_CATEGORY_VIDEO, "error linking shader program");
     }
 
-    // glGetVertexAttribPointerv()
-    // glBindAttribLocation
-    //  glPointSize
-    // glDrawArrays
-    glUseProgram(shader_prog);
-    // udpate
-    // use program
-    // glDraw Arrays
+
+    printf("vendor: %s\n version: %s\n shading vers: %s\n, renderer: %s\n", 
+        glGetString(GL_VENDOR), 
+        glGetString(GL_VERSION),
+        glGetString(GL_SHADING_LANGUAGE_VERSION),
+        glGetString(GL_RENDERER));
 
     glClearColor(1.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    GLuint *vtx_ar = malloc(sizeof(GLuint));
+    glGenVertexArrays(1, vtx_ar);
+    glBindVertexArray(vtx_ar);
+    glPointSize(10);
+
+    glDrawArrays(GL_POINTS, 0, 1);
+
+    glUseProgram(shader_prog);
+
     SDL_GL_SwapWindow(wnd);
 
     SDL_Delay(1000);
 
+    free(vtx_ar);
     SDL_GL_DeleteContext(ctx);
     SDL_Quit();
 }
