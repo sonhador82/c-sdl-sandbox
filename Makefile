@@ -1,3 +1,6 @@
-
+CC = gcc 
+CLAGS = -D_REENTRANT -I/usr/include/SDL2 -std=c99 -W -Wall -Wextra
+LIBS =  -lSDL2 -lGL
 build:
-	gcc -std=c99 -m64 ./main.c -lSDL2 -I/usr/include/SDL2 -W -Wall -Wextra -D_REENTRANT -o main
+	gcc $(CLAGS) main.c -o main $(LIBS)
+#ld --oformat elf64-x86-64 --verbose 1 -o main  $(LIBS) ./main.o
