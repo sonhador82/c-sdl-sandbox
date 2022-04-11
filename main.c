@@ -72,7 +72,7 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
     // linking
     glLinkProgram(shader_prog);
 
-    GLint *link_result;
+    GLint link_result;
     glGetProgramiv(shader_prog, GL_LINK_STATUS, &link_result);
     if (link_result != GL_TRUE)
     {
@@ -85,24 +85,38 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
         glGetString(GL_VERSION),
         glGetString(GL_SHADING_LANGUAGE_VERSION),
         glGetString(GL_RENDERER));
-
-    glClearColor(1.0, 0.0, 0.0, 1.0);
+        
+    glClearColor(0.15, 0.15, 0.1, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    GLuint *vtx_ar = malloc(sizeof(GLuint));
-    glGenVertexArrays(1, vtx_ar);
-    glBindVertexArray(vtx_ar);
-    glPointSize(10);
 
-    glDrawArrays(GL_POINTS, 0, 1);
+    GLfloat v_data[] = {
+       0.2, 0.2, 0.0,
+        -0.2, 0.2, 0.0,
+        0.0, 0.0, 0.0
+    };
+    
+    GLuint index_in_shader = 0;
+    GLint num_comp_per_vertex_attr = 3; 
+
+    glVertexAttrib4f(1, 1.0, 0.0, 0.0, 1.0);
+
+    glVertexAttribPointer(index_in_shader, 
+         num_comp_per_vertex_attr,
+         GL_FLOAT, 
+         GL_FALSE,
+         sizeof(GLfloat)*3, // stride
+         &v_data);
+    glEnableVertexAttribArray(index_in_shader);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glUseProgram(shader_prog);
 
     SDL_GL_SwapWindow(wnd);
 
-    SDL_Delay(1000);
+    SDL_Delay(2000);
 
-    free(vtx_ar);
+    //free(vrtxs);
     SDL_GL_DeleteContext(ctx);
     SDL_Quit();
 }
