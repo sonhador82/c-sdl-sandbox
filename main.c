@@ -89,28 +89,69 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
     glClearColor(0.15, 0.15, 0.1, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-
-    GLfloat v_data[] = {
-       0.2, 0.2, 0.0,
-        -0.2, 0.2, 0.0,
-        0.0, 0.0, 0.0
+    GLfloat v_arr[] = {
+        0.0, 0.0, 0.0,
+        0.3, 0.3, 0.0,
+        0.3, -0.3, 0.0
     };
     
     GLuint index_in_shader = 0;
     GLint num_comp_per_vertex_attr = 3; 
 
-    glVertexAttrib4f(1, 1.0, 0.0, 0.0, 1.0);
+    GLuint buffers[2];
+    glGenBuffers(1, buffers);
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        printf("status glGenBuffers: %i\n", err);
+    }
 
-    glVertexAttribPointer(index_in_shader, 
-         num_comp_per_vertex_attr,
-         GL_FLOAT, 
-         GL_FALSE,
-         sizeof(GLfloat)*3, // stride
-         &v_data);
-    glEnableVertexAttribArray(index_in_shader);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    printf("gen buffer name: %d\n", buffers[0]);
+  
+     glBindBuffer(GL_ARRAY_BUFFER, buffers[0]);
+    err = glGetError();
+
+    if (err != GL_NO_ERROR) {
+        printf("status glBindBuffer: %i\n", err);
+    }
+ 
+
+
+    printf("buf size: %d\n", sizeof(GLfloat)*9);
+
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(GLfloat)*9,
+        &v_arr,
+        GL_STATIC_DRAW
+    );
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        printf("status glBufferData: %x\n", err);
+        if(err == GL_INVALID_OPERATION) {
+            printf("invalid operation\n");
+        }
+    }
+      
 
     glUseProgram(shader_prog);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        printf("status glUseProgram: %i\n", err);
+    }
+
+
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        0
+    );
+
+    glDrawArrays(GL_TRIANGLES, 0, 9);
 
     SDL_GL_SwapWindow(wnd);
 
