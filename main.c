@@ -139,6 +139,80 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
         printf("status glUseProgram: %i\n", err);
     }
 
+    //
+    GLfloat uv_ar[] = {
+        0.0, 0.0,
+        0.5, 0.5,
+        1.0, 1.0
+    };
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+        1,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        &uv_ar
+    );
+
+    // color
+    GLfloat color[] = {
+        1.0, 1.0, 1.0, 1.0,
+        0.5, 1.0, 1.0, 1.0,
+        0.0, 1.0, 0.0, 1.0
+    };
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(
+        2,
+        4,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        &color
+    );
+
+    // TEXTURE PREPARE
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    GLuint tex;
+    glGenTextures(1, &tex);
+    GLuint rgb_txt[] = {
+        255,255,255, 255,255,0, 128,255,255, 0,0,0,
+        0,0,0, 128,128,128,  0,0,255, 255,255,255,
+        128,128,255, 128,128,0, 255,128,255, 128,128,128,
+        50, 0, 50, 90,0,0, 90,90,30, 25,255,10
+    };
+
+    // get
+    GLuint tex_loc = glGetUniformLocation(shader_prog, "s_texture");
+    glActiveTexture(GL_TEXTURE0);
+
+    glUniform1i(tex_loc, tex);
+
+
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGB,
+        4, // width
+        4, // height
+        0, // not used border
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        &rgb_txt
+    );
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        printf("status glTexImage2D: %i\n", err);
+    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+
+    GLuint uni_loc;
+    GLint result = glGetUniformLocation(&uni_loc, "aColor");
+    printf("res: %i, uni_loc: %i\n", result, uni_loc);
+    glUniform4f(uni_loc, 0.0, 0.0, 1.0, 1.0);
 
 
     glEnableVertexAttribArray(0);
@@ -153,6 +227,7 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
 
     glDrawArrays(GL_TRIANGLES, 0, 9);
 
+    glDeleteTextures(tex, rgb_txt);
     SDL_GL_SwapWindow(wnd);
 
     SDL_Delay(2000);
