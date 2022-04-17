@@ -1,17 +1,7 @@
-#version 300 es
-precision mediump float;
+#version 100
 
-//uniform vec4 aColor;
+varying mediump vec3  color;
 
-in vec4 aColor;
-out vec4 fragColor; 
-in vec2 v_texCoord;
-layout (location = 0) out vec4 outColor;
-uniform sampler2D s_texture;
-
-void main()
-{
-    outColor = aColor;
-    //outColor = texture (s_texture, v_texCoord);
+void main() {
+    gl_FragColor = vec4(color.r, color.g, color.b, 1.0);
 }
-

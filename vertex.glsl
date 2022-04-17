@@ -1,18 +1,13 @@
-#version 300 es
+#version 100
 
-layout(location = 0) in vec3 position;
+attribute vec4 aPosition;
+attribute vec3 aColor;
 
-layout(location = 1) in vec2 a_texCoord;
+varying vec3 color;
 
-layout(location = 3) in vec4 color;
+void main() {
 
-out vec4 aColor;
-out vec2 v_texCoord;
-
-void main()
-{
-    gl_Position = vec4(position.x, position.y, position.z, 1.0);
-    v_texCoord = a_texCoord;
-    aColor = color;
+    gl_Position = aPosition;
+    gl_PointSize = 2.0;
+    color = aColor;
 }
-
