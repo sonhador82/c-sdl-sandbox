@@ -3,6 +3,7 @@
 #include <errno.h>
 
 #include <string.h>
+#include <math.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
@@ -45,6 +46,8 @@ GLuint compileShader(shaderCode *shaderCode)
 
 
 void render() {
+
+
         // color
     GLfloat color[] = {
         1.0, 0.0, 0.0,
@@ -142,6 +145,14 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
         printf("status glBindAttribLocation: %x\n", err);
     }
 
+    // uniform 
+    GLuint mMatricLoc = glGetUniformLocation(shader_prog, "mMatrix");
+    SDL_Log("matrix loc: %i", mMatricLoc);
+    if (mMatricLoc == -1) {
+        SDL_Log("cant find unitofm");
+    }
+
+
 
 
     glUseProgram(shader_prog);
@@ -154,6 +165,19 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
 
 
 
+    GLfloat mMatrix[] = {
+        cosf(0.1), -(sinf(0.1)), 0.0, 0.3,
+        sinf(0.1), cosf(0.1), 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    };
+
+    glUniformMatrix4fv(
+        mMatricLoc,
+        1,
+        GL_FALSE,
+        &mMatrix
+    );
 
     int width, height;
 
@@ -165,7 +189,18 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
     glClear(GL_COLOR_BUFFER_BIT);
 
     render();
- 
+
+    mMatrix[3] = 0.7;
+    mMatrix[7] = -0.5;
+    glUniformMatrix4fv(
+        mMatricLoc,
+        1,
+        GL_FALSE,
+        &mMatrix
+    );
+    render();
+
+
     SDL_GL_SwapWindow(wnd);
 
     SDL_Delay(2000);
