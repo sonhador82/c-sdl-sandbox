@@ -7,6 +7,8 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
+#include <SDL2/SDL_image.h>
+
 
 #define MAX_SHADER_LINES 100
 #define MAX_SHADER_LINE_LEN 82
@@ -46,10 +48,21 @@ GLuint compileShader(shaderCode *shaderCode)
 
 
 void prep_texture() {
+    SDL_Surface *tex_surf = IMG_Load("tex.png");
+    printf("format: %s\n", SDL_GetPixelFormatName(tex_surf->format));
+    printf("image size: %ix%i\n", tex_surf->w, tex_surf->h);
+    SDL_Surface *tex_conv = SDL_ConvertSurfaceFormat(tex_surf, SDL_PIXELFORMAT_RGB888, 0);
+    printf("format: %s\n", SDL_GetPixelFormatName(tex_conv->format));
+    printf("image size: %ix%i\n", tex_surf->w, tex_conv->h);
+
+
     //GLubyte *img = malloc(2*2*3);
     GLubyte img[] = {
-        255,255,0, 128,255,0,
-        0,0,255, 0,255,0
+        255,255,0, 255,255,0, 255,255,0, 255,255,0, 255,255,0,
+        0,0,255, 0,0,255, 0,0,255, 0,0,255, 0,0,255,
+        255,255,0, 255,255,0, 255,255,0, 255,255,0, 255,255,0,
+        0,0,255, 0,0,255, 0,0,255, 0,0,255, 0,0,255,
+        255,255,0, 255,255,0, 255,255,0, 255,255,0, 255,255,0,
     };
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     
@@ -62,8 +75,8 @@ void prep_texture() {
         GL_TEXTURE_2D,
         0, // LoD
         GL_RGB, // internal foramt
-        2, // width
-        2, // height
+        5, // width
+        5, // height
         0,
         GL_RGB,
         GL_UNSIGNED_BYTE,
@@ -121,7 +134,7 @@ void render() {
     // textureCoord
     GLfloat t_coord[] = {
         0.0, 0.0,
-        0.3, 0.9,
+        1.0, 0.0,
         1.0, 1.0
     };
     glVertexAttribPointer(
