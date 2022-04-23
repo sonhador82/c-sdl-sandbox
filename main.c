@@ -45,6 +45,41 @@ GLuint compileShader(shaderCode *shaderCode)
 }
 
 
+void prep_texture() {
+    //GLubyte *img = malloc(2*2*3);
+    GLubyte img[] = {
+        255,255,0, 128,255,0,
+        0,0,255, 0,255,0
+    };
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    
+    glActiveTexture(GL_TEXTURE0);
+
+    GLuint tex_name;
+    glGenTextures(1, &tex_name);
+    glBindTexture(GL_TEXTURE_2D, tex_name);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0, // LoD
+        GL_RGB, // internal foramt
+        2, // width
+        2, // height
+        0,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        &img
+    );
+    int err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        printf("status glTexImage2D: %x\n", err);
+    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   
+}
+
+
 void render() {
 
 
@@ -82,9 +117,28 @@ void render() {
         &v_arr);
 
     glEnableVertexAttribArray(0);
+
+    // textureCoord
+    GLfloat t_coord[] = {
+        0.0, 0.0,
+        0.3, 0.9,
+        1.0, 1.0
+    };
+    glVertexAttribPointer(
+        2,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(GLfloat)*2,
+        &t_coord
+    );
+    glEnableVertexAttribArray(2);
+
+
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 
@@ -166,8 +220,8 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
 
 
     GLfloat mMatrix[] = {
-        cosf(0.1), -(sinf(0.1)), 0.0, 0.3,
-        sinf(0.1), cosf(0.1), 0.0, 0.0,
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
     };
@@ -179,6 +233,11 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
         &mMatrix
     );
 
+
+    prep_texture(); 
+
+
+
     int width, height;
 
     SDL_GL_GetDrawableSize(wnd, &width, &height);
@@ -189,17 +248,7 @@ void initSDL(shaderCode *vertexCode, shaderCode *fragmentCode)
     glClear(GL_COLOR_BUFFER_BIT);
 
     render();
-
-    mMatrix[3] = 0.7;
-    mMatrix[7] = -0.5;
-    glUniformMatrix4fv(
-        mMatricLoc,
-        1,
-        GL_FALSE,
-        &mMatrix
-    );
-    render();
-
+    
 
     SDL_GL_SwapWindow(wnd);
 
