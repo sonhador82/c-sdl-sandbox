@@ -7,7 +7,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
-#include <SDL2/SDL_image.h>
 
 
 #define MAX_SHADER_LINES 100
@@ -48,12 +47,20 @@ GLuint compileShader(shaderCode *shaderCode)
 
 
 void prep_texture() {
-    SDL_Surface *tex_surf = IMG_Load("tex.png");
+    SDL_Surface *tex_surf = SDL_LoadBMP("tex.bmp");
+    if (tex_surf == NULL) {
+        SDL_Log("Error loading BMP");
+    }
+
     printf("format: %s\n", SDL_GetPixelFormatName(tex_surf->format));
-    printf("image size: %ix%i\n", tex_surf->w, tex_surf->h);
-    SDL_Surface *tex_conv = SDL_ConvertSurfaceFormat(tex_surf, SDL_PIXELFORMAT_RGB888, 0);
+    printf("image size: %ix%i, pitch: %i \n", tex_surf->w, tex_surf->h, tex_surf->pitch);
+    SDL_Surface *tex_conv = SDL_ConvertSurfaceFormat(tex_surf, SDL_PIXELFORMAT_RGB24, 0);
+    if(tex_conv == NULL) {
+        SDL_Log("Error converting");
+    }
+
     printf("format: %s\n", SDL_GetPixelFormatName(tex_conv->format));
-    printf("image size: %ix%i\n", tex_surf->w, tex_conv->h);
+    printf("image size: %ix%i\n", tex_conv->w, tex_conv->h);
 
 
     //GLubyte *img = malloc(2*2*3);
@@ -75,12 +82,12 @@ void prep_texture() {
         GL_TEXTURE_2D,
         0, // LoD
         GL_RGB, // internal foramt
-        5, // width
-        5, // height
+        tex_conv->w, // width
+        tex_conv->h, // height
         0,
         GL_RGB,
         GL_UNSIGNED_BYTE,
-        &img
+        tex_conv->pixels
     );
     int err = glGetError();
     if (err != GL_NO_ERROR)
