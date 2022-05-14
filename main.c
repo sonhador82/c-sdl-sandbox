@@ -9,7 +9,10 @@
 #include <SDL2/SDL_opengles2.h>
 
 #include <cglm/affine.h>
+#include <cglm/io.h>
 #include <cglm/mat4.h>
+
+#include <stdio.h>
 
 #define MAX_SHADER_LINES 100
 #define MAX_SHADER_LINE_LEN 82
@@ -75,12 +78,22 @@ render (GLuint *shader_prog)
 
   glEnableVertexAttribArray (0);
 
+  GLuint uniLoc = glGetUniformLocation (shader_prog, "aMVMatrix");
+  SDL_Log ("matrix loc: %i", uniLoc);
+  if (uniLoc == -1)
+    {
+      SDL_Log ("cant find unitofm");
+    }
+
   // создаем камеру, двигаем на -3 по Z
-  // mat4 mvMatrix;
+  mat4 mvMatrix = { 1.0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1 };
+  SDL_Log ("Mat: 1:%f\n", mvMatrix[0]);
   // glm_mat4_identity (mvMatrix);
-  //  glm_translate_z (mvMatrix, -3.0);
-  // GLuint uniLoc = glGetUniformLocation (shader_prog, "aMVMatrix");
-  // glUniformMatrix4fv (uniLoc, 16, GL_TRUE, &mvMatrix);
+  glUniformMatrix4fv (uniLoc, 64, GL_FALSE, &mvMatrix);
+
+  //   GLfloat mMatrix[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+  //                         0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+  //   glUniformMatrix4fv (uniLoc, 1, GL_FALSE, &mMatrix);
 
   glDrawArrays (GL_TRIANGLES, 0, 3);
   glDisableVertexAttribArray (0);
@@ -127,7 +140,6 @@ initSDL (shaderCode *vertexCode, shaderCode *fragmentCode)
           glGetString (GL_VENDOR), glGetString (GL_VERSION),
           glGetString (GL_SHADING_LANGUAGE_VERSION),
           glGetString (GL_RENDERER));
-
   glUseProgram (shader_prog);
   int err = glGetError ();
   if (err != GL_NO_ERROR)
