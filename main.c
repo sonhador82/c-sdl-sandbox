@@ -8,6 +8,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
 
+#include <cglm/affine.h>
+#include <cglm/mat4.h>
+
 #define MAX_SHADER_LINES 100
 #define MAX_SHADER_LINE_LEN 82
 
@@ -72,6 +75,13 @@ render (GLuint *shader_prog)
 
   glEnableVertexAttribArray (0);
 
+  // создаем камеру, двигаем на -3 по Z
+  // mat4 mvMatrix;
+  // glm_mat4_identity (mvMatrix);
+  //  glm_translate_z (mvMatrix, -3.0);
+  // GLuint uniLoc = glGetUniformLocation (shader_prog, "aMVMatrix");
+  // glUniformMatrix4fv (uniLoc, 16, GL_TRUE, &mvMatrix);
+
   glDrawArrays (GL_TRIANGLES, 0, 3);
   glDisableVertexAttribArray (0);
 }
@@ -131,7 +141,7 @@ initSDL (shaderCode *vertexCode, shaderCode *fragmentCode)
   glViewport (0, 0, width, height);
 
   glClearColor (0.15, 0.15, 0.1, 1.0);
-  glClear (GL_COLOR_BUFFER_BIT);
+  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   render (shader_prog);
 
