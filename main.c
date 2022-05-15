@@ -8,9 +8,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengles2.h>
 
-#include <cglm/affine.h>
-#include <cglm/io.h>
-#include <cglm/mat4.h>
+#include <cglm/call.h>
 
 #include <stdio.h>
 
@@ -72,6 +70,7 @@ render (GLuint *shader_prog)
   GLuint buffer;
   glGenBuffers (1, &buffer);
   glBindBuffer (GL_ARRAY_BUFFER, buffer);
+  // кидаем в него данные вершин
   glBufferData (GL_ARRAY_BUFFER, sizeof (GLfloat) * 12, &v_arr,
                 GL_STATIC_DRAW);
   glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, sizeof (GLfloat) * 4, 0);
@@ -86,14 +85,40 @@ render (GLuint *shader_prog)
     }
 
   // создаем камеру, двигаем на -3 по Z
-  mat4 mvMatrix = { 1.0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1 };
-  SDL_Log ("Mat: 1:%f\n", mvMatrix[0]);
-  // glm_mat4_identity (mvMatrix);
-  glUniformMatrix4fv (uniLoc, 64, GL_FALSE, &mvMatrix);
+  mat4 model;
+  glmc_mat4_identity(model);
+  // glmc_perspective(60.0f, 1000.0f, -1000.0, 1.0, mat);
+  //glmc_scale_uni(mat, 0.3);
+  //glmc_rotate_z(mat, glm_rad(180.0), mat);
+  glmc_translate_x(model, 0.3f);
+  // glmc_translate_y(mat, -0.3f);
 
-  //   GLfloat mMatrix[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-  //                         0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
-  //   glUniformMatrix4fv (uniLoc, 1, GL_FALSE, &mMatrix);
+
+  mat4 view; 
+  vec3 eye={-0.0, 0.0, -1.0};
+  vec3 dir={0.0, 0.0, 0.0};
+  vec3 up={0.0, 1.0, 0.0};
+  glm_lookat(eye, dir, up, view);
+  glmc_mat4_print(view, stdout);
+
+
+  mat4 projection;
+  glmc_perspective(glm_deg(45.0), 1.0, -1.0, 1.0, projection);
+  //glmc_perspective(glm_deg(30.0), 1.0, -1.0, 1.0, mat);
+  //glmc_mul(mat, p, mat);
+
+  glmc_mat4_print(model, stdout);
+  glmc_mat4_print(view, stdout);
+  glmc_mat4_print(projection, stdout);
+    // GLfloat mvMatrix[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+    //                       0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+    // glUniformMatrix4fv (uniLoc, 1, GL_FALSE, &mvMatrix);
+
+ //glm::mat4 MVP = Projection * View * Model; // Помните, что умножение матрицы производиться в обратном порядке
+ glmc_mul(projection, view, view);
+ glmc_mul(view, model, model);
+  glUniformMatrix4fv (uniLoc, 1, GL_FALSE, (float *) model);
+
 
   glDrawArrays (GL_TRIANGLES, 0, 3);
   glDisableVertexAttribArray (0);
