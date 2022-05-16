@@ -15,12 +15,15 @@
 #define MAX_SHADER_LINES 100
 #define MAX_SHADER_LINE_LEN 82
 
+#include "load/loadfile.h"
+
 typedef struct shaderCode
 {
   char *code[100];
   int size;
   GLenum type; // GL_VERTEX_SHADER || GL_FRAGMENT_SHADER
 } shaderCode;
+
 
 GLuint
 compileShader (shaderCode *shaderCode)
@@ -61,19 +64,29 @@ render (GLuint *shader_prog)
       printf ("status glBindAttribLocation: %x\n", err);
     }
 
+  VertexData *vdata = (VertexData *)malloc(sizeof(VertexData));
+  load_file("box_uvmap.obj", vdata); 
+
+  printf("vdata: %i\n", vdata->vtx_count);
+  printf("vdata: %f\n", vdata->vtx_data[0]);
+
   // vertex 12 points
-  GLfloat v_arr[] = {
-    -0.9, -0.9, 0.0, 1.0, -0.9, 0.9, 0.0, 1.0, 0.9, 0.9, 0.0, 1.0,
-  };
+  // GLfloat v_arr[] = {
+  //   -0.9, -0.9, 0.0, 1.0, -0.9, 0.9, 0.0, 1.0, 0.9, 0.9, 0.0, 1.0,
+  // };
 
   // создаем буффер на GPU
   GLuint buffer;
   glGenBuffers (1, &buffer);
   glBindBuffer (GL_ARRAY_BUFFER, buffer);
   // кидаем в него данные вершин
-  glBufferData (GL_ARRAY_BUFFER, sizeof (GLfloat) * 12, &v_arr,
+  // glBufferData (GL_ARRAY_BUFFER, sizeof (GLfloat) * 12, &v_arr,
+  //               GL_STATIC_DRAW);
+  // glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, sizeof (GLfloat) * 4, 0);
+
+  glBufferData (GL_ARRAY_BUFFER, sizeof (GLfloat) * vdata->vtx_count, vdata->vtx_data,
                 GL_STATIC_DRAW);
-  glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, sizeof (GLfloat) * 4, 0);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof (GLfloat) * 3, 0);
 
   glEnableVertexAttribArray (0);
 
@@ -90,7 +103,7 @@ render (GLuint *shader_prog)
   // glmc_perspective(60.0f, 1000.0f, -1000.0, 1.0, mat);
   //glmc_scale_uni(mat, 0.3);
   //glmc_rotate_z(mat, glm_rad(180.0), mat);
-  glmc_translate_x(model, 0.3f);
+  //glmc_translate_x(model, 0.3f);
   // glmc_translate_y(mat, -0.3f);
 
 
@@ -120,7 +133,7 @@ render (GLuint *shader_prog)
   glUniformMatrix4fv (uniLoc, 1, GL_FALSE, (float *) model);
 
 
-  glDrawArrays (GL_TRIANGLES, 0, 3);
+  glDrawArrays (GL_TRIANGLES, 0, 8);
   glDisableVertexAttribArray (0);
 }
 
