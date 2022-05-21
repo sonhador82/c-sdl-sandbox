@@ -64,30 +64,21 @@ render (GLuint *shader_prog)
       printf ("status glBindAttribLocation: %x\n", err);
     }
 
-  VertexData *vdata = (VertexData *)malloc(sizeof(VertexData));
-  load_file("box_uvmap.obj", vdata); 
+  TinyObject *obj = (TinyObject*)malloc(sizeof(TinyObject));
+  load_obj_file("sphere.obj", obj);
 
-  printf("vdata: %i\n", vdata->vtx_count);
-  printf("vdata: %f\n", vdata->vtx_data[0]);
+  printf("obj_v: %i\n", obj->vtx_num);
+  printf("obj_f: %i\n", obj->ind_num);
+  for(int i=0; i<obj->vtx_num; i++){
+    printf("%0.2f,", obj->vertices[i]);
+  }
+  putchar('\n');
+  for(int i=0; i<obj->ind_num; i++){
+    printf("%i,", obj->indices[i]);
+  }
+  putchar('\n');
 
-  // vertex 12 points
-  // GLfloat v_arr[] = {
-  //   -0.9, -0.9, 0.0, 1.0, -0.9, 0.9, 0.0, 1.0, 0.9, 0.9, 0.0, 1.0,
-  // };
-
-  // создаем буффер на GPU
-  GLuint buffer;
-  glGenBuffers (1, &buffer);
-  glBindBuffer (GL_ARRAY_BUFFER, buffer);
-  // кидаем в него данные вершин
-  // glBufferData (GL_ARRAY_BUFFER, sizeof (GLfloat) * 12, &v_arr,
-  //               GL_STATIC_DRAW);
-  // glVertexAttribPointer (0, 4, GL_FLOAT, GL_FALSE, sizeof (GLfloat) * 4, 0);
-
-  glBufferData (GL_ARRAY_BUFFER, sizeof (GLfloat) * vdata->vtx_count, vdata->vtx_data,
-                GL_STATIC_DRAW);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof (GLfloat) * 3, 0);
-
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, sizeof (GLfloat) * 3, obj->vertices);  
   glEnableVertexAttribArray (0);
 
   GLuint uniLoc = glGetUniformLocation (shader_prog, "aMVMatrix");
@@ -120,9 +111,9 @@ render (GLuint *shader_prog)
   //glmc_perspective(glm_deg(30.0), 1.0, -1.0, 1.0, mat);
   //glmc_mul(mat, p, mat);
 
-  glmc_mat4_print(model, stdout);
-  glmc_mat4_print(view, stdout);
-  glmc_mat4_print(projection, stdout);
+  // glmc_mat4_print(model, stdout);
+  // glmc_mat4_print(view, stdout);
+  // glmc_mat4_print(projection, stdout);
     // GLfloat mvMatrix[] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
     //                       0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
     // glUniformMatrix4fv (uniLoc, 1, GL_FALSE, &mvMatrix);
@@ -132,8 +123,12 @@ render (GLuint *shader_prog)
  glmc_mul(view, model, model);
   glUniformMatrix4fv (uniLoc, 1, GL_FALSE, (float *) model);
 
-
-  glDrawArrays (GL_TRIANGLES, 0, 8);
+  glDrawElements(
+    GL_TRIANGLES,
+    obj->ind_num,
+    GL_UNSIGNED_SHORT,
+    obj->indices
+  );
   glDisableVertexAttribArray (0);
 }
 

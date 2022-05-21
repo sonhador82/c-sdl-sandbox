@@ -5,7 +5,7 @@ typedef struct TinyObject
 {
     unsigned int vtx_num;
     float *vertices;
-    unsigned int *indices;
+    unsigned short *indices;
     unsigned int ind_num;
 } TinyObject;
 

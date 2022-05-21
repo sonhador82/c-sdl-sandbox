@@ -4,10 +4,7 @@
 
 
 int main(){
-    VertexData *data = (VertexData*)malloc(sizeof(VertexData));
-
-
-    load_file("box_uvmap.obj", data);
-    printf("num vtx: %i\n", data->vtx_count);
+    TinyObject *obj = (TinyObject*)malloc(sizeof(TinyObject));    
+    load_obj_file("box_uvmap.obj", obj);
     return EXIT_SUCCESS; 
 }
