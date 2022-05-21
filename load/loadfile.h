@@ -1,13 +1,15 @@
 #ifndef LOADFILE_H
 #define LOADFILE_H
 
-typedef struct VertexData
+typedef struct TinyObject
 {
-    int vtx_count;
-    float *vtx_data;
-} VertexData;
+    unsigned int vtx_num;
+    float *vertices;
+    unsigned int *indices;
+    unsigned int ind_num;
+} TinyObject;
 
 
-void load_file(const char *f_name, VertexData *vtxData);
+void load_obj_file(const char *f_name, TinyObject *object);
 
 #endif
